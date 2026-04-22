@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a1628;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#1a3a5c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d6a9f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="ground" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a2a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d1a0d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <rect y="720" width="1920" height="360" fill="url(#ground)" opacity="0.8"/>
+  <!-- Stars -->
+  <circle cx="200" cy="100" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="450" cy="60" r="1" fill="white" opacity="0.6"/>
+  <circle cx="700" cy="130" r="2" fill="white" opacity="0.9"/>
+  <circle cx="1100" cy="80" r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="1400" cy="50" r="1" fill="white" opacity="0.8"/>
+  <circle cx="1700" cy="110" r="2" fill="white" opacity="0.6"/>
+  <circle cx="950" cy="40" r="1.5" fill="white" opacity="0.9"/>
+  <!-- Drone body -->
+  <g transform="translate(960,400)">
+    <rect x="-40" y="-15" width="80" height="30" rx="8" fill="#2a4a6b" stroke="#4a8abf" stroke-width="2"/>
+    <!-- Arms -->
+    <line x1="-40" y1="-5" x2="-120" y2="-40" stroke="#3a6a9f" stroke-width="4"/>
+    <line x1="40" y1="-5" x2="120" y2="-40" stroke="#3a6a9f" stroke-width="4"/>
+    <line x1="-40" y1="5" x2="-120" y2="40" stroke="#3a6a9f" stroke-width="4"/>
+    <line x1="40" y1="5" x2="120" y2="40" stroke="#3a6a9f" stroke-width="4"/>
+    <!-- Rotors -->
+    <ellipse cx="-120" cy="-40" rx="35" ry="6" fill="none" stroke="#6aafdf" stroke-width="2" opacity="0.7"/>
+    <ellipse cx="120" cy="-40" rx="35" ry="6" fill="none" stroke="#6aafdf" stroke-width="2" opacity="0.7"/>
+    <ellipse cx="-120" cy="40" rx="35" ry="6" fill="none" stroke="#6aafdf" stroke-width="2" opacity="0.7"/>
+    <ellipse cx="120" cy="40" rx="35" ry="6" fill="none" stroke="#6aafdf" stroke-width="2" opacity="0.7"/>
+    <!-- Camera -->
+    <circle cx="0" cy="20" r="12" fill="#1a2a3a" stroke="#4a8abf" stroke-width="1.5"/>
+    <circle cx="0" cy="20" r="7" fill="#0a1a2a"/>
+    <!-- LED -->
+    <circle cx="30" cy="0" r="4" fill="#00ff88" opacity="0.9"/>
+  </g>
+  <!-- City lights on ground -->
+  <rect x="100" y="750" width="3" height="8" fill="#ffcc44" opacity="0.6"/>
+  <rect x="200" y="760" width="2" height="6" fill="#ffcc44" opacity="0.5"/>
+  <rect x="400" y="740" width="4" height="12" fill="#ffcc44" opacity="0.7"/>
+  <rect x="600" y="755" width="3" height="9" fill="#44aaff" opacity="0.6"/>
+  <rect x="800" y="748" width="2" height="7" fill="#ffcc44" opacity="0.5"/>
+  <rect x="1000" y="752" width="5" height="15" fill="#ffcc44" opacity="0.8"/>
+  <rect x="1200" y="745" width="3" height="10" fill="#44aaff" opacity="0.6"/>
+  <rect x="1400" y="758" width="2" height="6" fill="#ffcc44" opacity="0.5"/>
+  <rect x="1600" y="742" width="4" height="13" fill="#ffcc44" opacity="0.7"/>
+  <rect x="1800" y="755" width="3" height="8" fill="#44aaff" opacity="0.6"/>
+  <text x="960" y="600" text-anchor="middle" font-family="sans-serif" font-size="28" fill="white" opacity="0.4">RAFID INDUSTRIES — Aerial Operations</text>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f4fd"/>
+      <stop offset="100%" style="stop-color:#bbdefb"/>
+    </linearGradient>
+    <linearGradient id="device" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#37474f"/>
+      <stop offset="100%" style="stop-color:#263238"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <!-- Air quality particles -->
+  <circle cx="100" cy="100" r="3" fill="#42a5f5" opacity="0.3"/>
+  <circle cx="250" cy="80" r="2" fill="#42a5f5" opacity="0.2"/>
+  <circle cx="600" cy="120" r="4" fill="#66bb6a" opacity="0.25"/>
+  <circle cx="700" cy="200" r="2.5" fill="#42a5f5" opacity="0.3"/>
+  <!-- ClearAir sensor device -->
+  <g transform="translate(400,280)">
+    <!-- Main body -->
+    <rect x="-80" y="-120" width="160" height="240" rx="20" fill="url(#device)" stroke="#4a6a7a" stroke-width="2"/>
+    <!-- Screen -->
+    <rect x="-60" y="-100" width="120" height="100" rx="8" fill="#00bcd4" opacity="0.9"/>
+    <text x="0" y="-65" text-anchor="middle" font-family="sans-serif" font-size="11" fill="white" font-weight="bold">AIR QUALITY</text>
+    <text x="0" y="-40" text-anchor="middle" font-family="sans-serif" font-size="28" fill="white" font-weight="bold">98</text>
+    <text x="0" y="-20" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#b2ebf2">AQI — EXCELLENT</text>
+    <!-- Indicators -->
+    <circle cx="-40" cy="-8" r="5" fill="#66bb6a"/>
+    <circle cx="-20" cy="-8" r="5" fill="#66bb6a"/>
+    <circle cx="0" cy="-8" r="5" fill="#66bb6a"/>
+    <circle cx="20" cy="-8" r="5" fill="#ffeb3b" opacity="0.6"/>
+    <circle cx="40" cy="-8" r="5" fill="#ff5722" opacity="0.3"/>
+    <!-- Sensor grille -->
+    <rect x="-60" y="20" width="120" height="60" rx="5" fill="#1a2a35"/>
+    <line x1="-50" y1="28" x2="50" y2="28" stroke="#2a4a5a" stroke-width="1.5"/>
+    <line x1="-50" y1="36" x2="50" y2="36" stroke="#2a4a5a" stroke-width="1.5"/>
+    <line x1="-50" y1="44" x2="50" y2="44" stroke="#2a4a5a" stroke-width="1.5"/>
+    <line x1="-50" y1="52" x2="50" y2="52" stroke="#2a4a5a" stroke-width="1.5"/>
+    <line x1="-50" y1="60" x2="50" y2="60" stroke="#2a4a5a" stroke-width="1.5"/>
+    <line x1="-50" y1="68" x2="50" y2="68" stroke="#2a4a5a" stroke-width="1.5"/>
+    <!-- Button -->
+    <circle cx="0" cy="100" r="15" fill="#2a4a5a" stroke="#4a6a7a" stroke-width="2"/>
+    <circle cx="0" cy="100" r="8" fill="#1a2a35"/>
+  </g>
+  <text x="400" y="560" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#1565c0" opacity="0.6">ClearAir — Real-Time Air Quality Monitoring</text>
+</svg>
