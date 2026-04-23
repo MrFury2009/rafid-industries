@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design tokens ─────────────────────────────────────────────────── */
+:root {
+  --bg: #F5F4EF;
+  --surface: #ECEAE3;
+  --elevated: #E4E1D8;
+  --border: #D4D0C6;
+  --text: #1C1C1A;
+  --muted: #6B6860;
+  --sage: #7A9E82;
+  --font-dm-sans: var(--font-dm-sans);
+  --font-cormorant: var(--font-cormorant);
+}
+
+.dark {
+  --bg: #1A1410;
+  --surface: #241C16;
+  --elevated: #2E2318;
+  --border: #3D3028;
+  --text: #F0EDE8;
+  --muted: #A89880;
+  --sage: #7A9E82;
+}
+
+/* ─── Base reset ─────────────────────────────────────────────────────── */
+html {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-dm-sans, system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── View Transitions: default (instant, no flash) ─────────────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* ─── Suppress default view transition during our custom animation ─── */
+.vt-fragment-active::view-transition-old(root) {
+  animation: none;
+}
+.vt-fragment-active::view-transition-new(root) {
+  animation: none;
+}
+
+/* ─── prefers-reduced-motion: instant theme switch ───────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+  .theme-fragment {
+    display: none !important;
+  }
+  html {
+    transition: none !important;
+  }
+}
+
+/* ─── Theme fragment overlays (injected by JS) ───────────────────────── */
+.theme-fragment {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* ─── Nav link sage underline animation ──────────────────────────────── */
+.nav-link {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--sage);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease-out;
+}
+
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* ─── Route transition: page mount fade ──────────────────────────────── */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 200ms ease-out both;
+}
+
+/* ─── Section reveal (IntersectionObserver driven) ───────────────────── */
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+}
+
+.reveal.revealed {
+  animation: section-reveal 280ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+  }
+  .reveal.revealed {
+    animation: none !important;
+  }
+}
+
+/* ─── Hero heading letter-spacing breathe ────────────────────────────── */
+@keyframes heading-breathe {
+  from { letter-spacing: -0.4px; }
+  to   { letter-spacing:  0.4px; }
+}
+
+.hero-heading {
+  animation: heading-breathe 8s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-heading {
+    animation: none !important;
+  }
+}
+
+/* ─── Admin table row stagger ────────────────────────────────────────── */
+@keyframes row-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-row {
+  opacity: 0;
+  animation: row-fade-in 200ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-row {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* ─── KV stat counter glow ───────────────────────────────────────────── */
+.stat-counter {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Scrollbar styling ──────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* ─── Focus ring ─────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
