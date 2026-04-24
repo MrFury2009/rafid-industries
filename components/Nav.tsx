@@ -7,7 +7,7 @@ import { useRef } from 'react'
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
-  { href: '/tools', label: 'Tools' },
+  { href: '/tools', label: 'Educational Tools' },
   { href: '/products', label: 'Products' },
   { href: '/about', label: 'About' },
 ]

@@ -168,7 +168,7 @@ export default async function HomePage() {
                 className="font-serif text-3xl font-semibold"
                 style={{ color: 'var(--text)' }}
               >
-                Our Tools
+                Our Products
               </h2>
               <p className="mt-3 text-sm" style={{ color: 'var(--muted)' }}>
                 Purpose-built for the modern airspace operator.
