@@ -7,7 +7,7 @@ import { useRef } from 'react'
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
-  { href: '/#products', label: 'Tools' },
+  { href: '/tools', label: 'Tools' },
   { href: '/products', label: 'Products' },
   { href: '/about', label: 'About' },
 ]
@@ -39,7 +39,7 @@ export function Nav() {
         {/* Links */}
         <ul className="flex items-center gap-8">
           {NAV_LINKS.map(({ href, label }) => {
-            const isActive = pathname === href
+            const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
             return (
               <li key={href}>
                 <Link
