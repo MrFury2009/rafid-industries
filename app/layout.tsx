@@ -1,46 +1,32 @@
 import type { Metadata } from 'next'
 import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
-import Script from 'next/script'
+import { MotionProvider } from '@/components/MotionProvider'
 import './globals.css'
-import { ThemeProvider } from '@/components/ThemeProvider'
-import { Nav } from '@/components/Nav'
 
-// ── next/font: server-side font loading — no Google Fonts <link> tags ──
 const dmSans = DM_Sans({
   subsets: ['latin'],
+  weight: ['500'],
   variable: '--font-dm-sans',
   display: 'swap',
 })
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+  weight: ['300'],
   variable: '--font-cormorant',
   display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: {
-    default: 'Rafid Industries',
-    template: '%s | Rafid Industries',
-  },
-  description: 'Precision drone technology and airspace intelligence.',
+  title: 'Rafid Industries',
+  description: 'Educational tools and products by Rafid Industries.',
   metadataBase: new URL('https://rafidindustries.com'),
+  openGraph: {
+    title: 'Rafid Industries',
+    description: 'Educational tools and products by Rafid Industries.',
+    type: 'website',
+  },
 }
-
-// Inline script that runs before React hydrates — prevents flash of wrong theme.
-// Must NOT reference any module-level variable (runs in isolation).
-const THEME_INIT_SCRIPT = `
-(function(){
-  try{
-    var t=localStorage.getItem('ri-theme');
-    if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
-      document.documentElement.classList.add('dark');
-    }
-  }catch(e){}
-})();
-`
 
 export default function RootLayout({
   children,
@@ -48,27 +34,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${dmSans.variable} ${cormorant.variable}`}
-    >
-      <head>
-        {/*
-          beforeInteractive: executes before the page is interactive,
-          before React hydration. Prevents flash of wrong theme.
-        */}
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
-        />
-      </head>
-      <body>
-        <ThemeProvider>
-          <Nav />
-          {children}
-        </ThemeProvider>
+    <html lang="en" className={`${dmSans.variable} ${cormorant.variable}`}>
+      <body
+        className="bg-[#F5F4EF] text-[#1A1A1A] font-sans antialiased"
+        style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}
+      >
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   )

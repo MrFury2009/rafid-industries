@@ -16,30 +16,35 @@ const TOOLS = [
     title: 'MLA Generator',
     description: 'Create accurate MLA 9 citations for your academic work.',
     active: false,
+    href: null,
   },
   {
     id: 'chicago',
     title: 'Chicago Generator',
     description: 'Format citations in Chicago style (Notes-Bibliography and Author-Date).',
     active: false,
+    href: null,
   },
   {
     id: 'wordcount',
     title: 'Word Counter',
     description: 'Analyze text length, character count, readability, and more.',
     active: false,
+    href: null,
   },
   {
     id: 'gpa',
     title: 'GPA Calculator',
     description: 'Calculate your GPA and track academic performance.',
     active: false,
+    href: null,
   },
   {
     id: 'timer',
     title: 'Study Timer',
     description: 'Pomodoro timer and study session tracker.',
     active: false,
+    href: null,
   },
 ]
 
@@ -63,21 +68,39 @@ export default function ToolsPage() {
         {/* Tools Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {TOOLS.map((tool, idx) => {
-            const Card = tool.active ? Link : 'div'
-            const cardProps = tool.active ? { href: tool.href } : {}
+            if (tool.active && tool.href) {
+              return (
+                <StaggerItem key={tool.id} index={idx} staggerMs={60} duration={400}>
+                  <Link
+                    href={tool.href}
+                    className="rounded-none border p-6 transition-all duration-200 hover:border-sage"
+                    style={{
+                      backgroundColor: 'var(--surface)',
+                      borderColor: 'var(--border)',
+                      display: 'block',
+                    }}
+                  >
+                    <h2
+                      className="text-xl font-semibold mb-2"
+                      style={{ color: 'var(--text)' }}
+                    >
+                      {tool.title}
+                    </h2>
+                    <p className="text-sm" style={{ color: 'var(--muted)' }}>
+                      {tool.description}
+                    </p>
+                  </Link>
+                </StaggerItem>
+              )
+            }
 
             return (
               <StaggerItem key={tool.id} index={idx} staggerMs={60} duration={400}>
-                <Card
-                  {...cardProps}
-                  className={`rounded-none border p-6 transition-all duration-200 ${
-                    tool.active
-                      ? 'hover:border-sage cursor-pointer'
-                      : 'opacity-60 cursor-not-allowed'
-                  }`}
+                <div
+                  className="rounded-none border p-6 opacity-60"
                   style={{
                     backgroundColor: 'var(--surface)',
-                    borderColor: tool.active ? 'var(--border)' : 'var(--border)',
+                    borderColor: 'var(--border)',
                   }}
                 >
                   <h2
@@ -89,14 +112,12 @@ export default function ToolsPage() {
                   <p className="text-sm" style={{ color: 'var(--muted)' }}>
                     {tool.description}
                   </p>
-                  {!tool.active && (
-                    <div className="mt-4 inline-block rounded-none bg-sage/10 px-3 py-1">
-                      <span className="text-xs font-semibold" style={{ color: 'var(--sage)' }}>
-                        Coming soon
-                      </span>
-                    </div>
-                  )}
-                </Card>
+                  <div className="mt-4 inline-block rounded-none bg-sage/10 px-3 py-1">
+                    <span className="text-xs font-semibold" style={{ color: 'var(--sage)' }}>
+                      Coming soon
+                    </span>
+                  </div>
+                </div>
               </StaggerItem>
             )
           })}
