@@ -1,7 +1,6 @@
-// No-op — pageview tracking is handled client-side.
-// Empty matcher means no requests hit this function.
+// No-op — middleware disabled, never matches any real route.
 export function middleware() {}
 
 export const config = {
-  matcher: [],
+  matcher: ['/_never_matches'],
 }
