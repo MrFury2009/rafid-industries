@@ -87,7 +87,7 @@ export async function getProduct(slug: string): Promise<Product | null> {
   try {
     const kv = getKv()
     const product = await kv.hgetall(`product:${slug}`)
-    return (product as Product) ?? null
+    return (product as unknown as Product) ?? null
   } catch {
     return null
   }
