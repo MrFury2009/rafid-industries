@@ -4,16 +4,25 @@
  * Never import this file from 'use client' components.
  */
 
-// Lazy-import kv so the module can load even when KV env vars are absent
-async function getKv() {
-  const { kv } = await import('@vercel/kv')
-  return kv
+import { Redis } from '@upstash/redis'
+
+// Singleton — reuse across requests in the same server instance
+let _kv: Redis | null = null
+
+function getKv(): Redis {
+  if (!_kv) {
+    _kv = new Redis({
+      url: process.env.KV_REST_API_URL!,
+      token: process.env.KV_REST_API_TOKEN!,
+    })
+  }
+  return _kv
 }
 
 /* ── Pageview tracking ───────────────────────────────────────────────── */
 export async function getPageviews(page: string): Promise<number | null> {
   try {
-    const kv = await getKv()
+    const kv = getKv()
     const val = await kv.get<number>(`pageviews:${page}`)
     return val ?? 0
   } catch {
@@ -24,7 +33,7 @@ export async function getPageviews(page: string): Promise<number | null> {
 
 export async function incrementPageview(page: string): Promise<void> {
   try {
-    const kv = await getKv()
+    const kv = getKv()
     await kv.incr(`pageviews:${page}`)
   } catch {
     // Silently fail — pageview tracking is non-critical
@@ -48,7 +57,7 @@ export interface Product {
 /** Read all products. Stored as a JSON array under key "products". */
 export async function getProducts(): Promise<Product[]> {
   try {
-    const kv = await getKv()
+    const kv = getKv()
     const products = await kv.get<Product[]>('products')
     return products ?? []
   } catch {
@@ -59,7 +68,7 @@ export async function getProducts(): Promise<Product[]> {
 /** Overwrite the full products array. */
 export async function setProducts(products: Product[]): Promise<boolean> {
   try {
-    const kv = await getKv()
+    const kv = getKv()
     await kv.set('products', products)
     return true
   } catch {
@@ -76,9 +85,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 /** Legacy hset-based getter kept for backward compat. */
 export async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const kv = await getKv()
-    const product = await kv.hgetall<Product>(`product:${slug}`)
-    return product ?? null
+    const kv = getKv()
+    const product = await kv.hgetall(`product:${slug}`)
+    return (product as Product) ?? null
   } catch {
     return null
   }
@@ -86,8 +95,8 @@ export async function getProduct(slug: string): Promise<Product | null> {
 
 export async function setProduct(slug: string, data: Product): Promise<boolean> {
   try {
-    const kv = await getKv()
-    await kv.hset(`product:${slug}`, data as Record<string, unknown>)
+    const kv = getKv()
+    await kv.hset(`product:${slug}`, { ...data } as Record<string, unknown>)
     return true
   } catch {
     return false
@@ -97,7 +106,7 @@ export async function setProduct(slug: string, data: Product): Promise<boolean> 
 /* ── ClearAir usage counter ──────────────────────────────────────────── */
 export async function getClearAirChecks(): Promise<number> {
   try {
-    const kv = await getKv()
+    const kv = getKv()
     const val = await kv.get<number>('clearair_checks')
     return val ?? 0
   } catch {
@@ -114,7 +123,7 @@ export interface AdminStats {
 
 export async function getAdminStats(): Promise<AdminStats | null> {
   try {
-    const kv = await getKv()
+    const kv = getKv()
     const [total, home, products] = await Promise.all([
       kv.get<number>('pageviews:total'),
       kv.get<number>('pageviews:home'),
