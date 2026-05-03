@@ -50,7 +50,7 @@ export async function generateMetadata({
       siteName: 'Rafid Industries',
     },
     alternates: {
-      canonical: `https://rafidindustries.vercel.app/tools/${params.slug}`,
+      canonical: `https://rafid-industries-7um2.vercel.app/tools/${params.slug}`,
     },
   }
 }

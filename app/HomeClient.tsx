@@ -34,12 +34,12 @@ interface HomeClientProps {
 
 function StatusDot({ status }: { status?: string }) {
   const label =
-    status === 'coming-soon' ? 'Coming Soon'
-    : status === 'beta' ? 'Beta'
-    : status === 'live' ? 'Live'
+    status?.toLowerCase() === 'coming-soon' ? 'Coming Soon'
+    : status?.toLowerCase() === 'beta' ? 'Beta'
+    : status?.toLowerCase() === 'live' ? 'Live'
     : status ?? 'Live'
 
-  const isActive = !status || status === 'live' || status === 'beta'
+  const isActive = !status || status.toLowerCase() === 'live' || status.toLowerCase() === 'beta'
 
   return (
     <span className="inline-flex items-center gap-1.5">
