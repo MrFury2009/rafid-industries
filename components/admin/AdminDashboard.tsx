@@ -1,208 +1,289 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { StatCounter } from '@/components/StatCounter'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
-interface Stats {
-  totalPageviews: number
-  homeViews: number
-  productsViews: number
+interface DashboardProps {
+  initialHeroText: string
+  initialAdminNotes: string
+  initialViewsTotal: number
+  initialClearairChecks: number
+  initialPageViews: Record<string, number>
+  projectIdRI: string
+  projectIdClearAir: string
 }
 
-interface PageviewRow {
-  page: string
-  views: number
-}
-
-export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [rows, setRows] = useState<PageviewRow[]>([])
-  const [clearairChecks, setClearairChecks] = useState<number>(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// Count-up animation hook
+function useCountUp(target: number, duration = 600) {
+  const [value, setValue] = useState(0)
+  const started = useRef(false)
 
   useEffect(() => {
-    let cancelled = false
+    if (started.current) return
+    started.current = true
 
-    async function fetchData() {
+    const start = performance.now()
+    const step = (now: number) => {
+      const elapsed = now - start
+      const progress = Math.min(elapsed / duration, 1)
+      setValue(Math.round(target * progress))
+      if (progress < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }, [target, duration])
+
+  return value
+}
+
+type Tab = 'deployments' | 'kv' | 'content' | 'notes'
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'deployments', label: 'Deployments' },
+  { id: 'kv', label: 'KV Stats' },
+  { id: 'content', label: 'Content' },
+  { id: 'notes', label: 'Notes' },
+]
+
+const dark = {
+  bg: '#0F0F0E',
+  surface: '#1A1410',
+  border: '#3D3028',
+  text: '#F0EDE8',
+  muted: '#A89880',
+  sage: '#7A9E82',
+}
+
+export default function AdminDashboard({
+  initialHeroText,
+  initialAdminNotes,
+  initialViewsTotal,
+  initialClearairChecks,
+  initialPageViews,
+  projectIdRI,
+}: DashboardProps) {
+  const [activeTab, setActiveTab] = useState<Tab>('kv')
+  const [heroText, setHeroText] = useState(initialHeroText)
+  const [notes, setNotes] = useState(initialAdminNotes)
+  const [deployments, setDeployments] = useState<null | unknown[]>(null)
+  const [deploymentsError, setDeploymentsError] = useState('')
+  const [saveStatus, setSaveStatus] = useState('')
+  const notesDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const totalViews = useCountUp(initialViewsTotal)
+  const clearairChecks = useCountUp(initialClearairChecks)
+
+  // Fetch deployments when tab opens
+  useEffect(() => {
+    if (activeTab !== 'deployments') return
+    if (deployments !== null) return
+
+    const fetchDeployments = async () => {
       try {
-        const res = await fetch('/api/admin/stats')
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const qs = projectIdRI ? `?projectId=${projectIdRI}&limit=10` : '?limit=10'
+        const res = await fetch('/api/vercel', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ endpoint: `/v6/deployments${qs}` }),
+        })
         const data = await res.json()
-        if (!cancelled) {
-          setStats(data.stats ?? null)
-          setRows(data.rows ?? [])
-          setClearairChecks(data.clearairChecks ?? 0)
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError('Failed to load stats. KV may not be configured.')
-        }
-      } finally {
-        if (!cancelled) setLoading(false)
+        setDeployments(data?.deployments ?? [])
+      } catch {
+        setDeploymentsError('Failed to load deployments.')
       }
     }
 
-    fetchData()
-    return () => { cancelled = true }
+    fetchDeployments()
+  }, [activeTab, deployments, projectIdRI])
+
+  const saveContent = useCallback(async (key: string, value: string) => {
+    setSaveStatus('Saving…')
+    try {
+      await fetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ key, value }),
+      })
+      setSaveStatus('Saved')
+      setTimeout(() => setSaveStatus(''), 2000)
+    } catch {
+      setSaveStatus('Error saving')
+    }
   }, [])
 
-  if (loading) {
-    return (
-      <div className="animate-pulse space-y-6">
-        <div className="grid grid-cols-3 gap-4">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="h-24 rounded-xl"
-              style={{ backgroundColor: 'var(--surface)' }}
-            />
-          ))}
-        </div>
-      </div>
-    )
+  const handleNotesChange = (val: string) => {
+    setNotes(val)
+    if (notesDebounceRef.current) clearTimeout(notesDebounceRef.current)
+    notesDebounceRef.current = setTimeout(() => saveContent('admin_notes', val), 1000)
   }
 
+  const s: React.CSSProperties = { color: dark.text }
+
   return (
-    <div className="space-y-8">
-      {error && (
-        <div
-          className="rounded-lg border px-4 py-3 text-sm"
-          style={{
-            borderColor: 'var(--border)',
-            backgroundColor: 'var(--surface)',
-            color: 'var(--muted)',
-          }}
-          role="alert"
-        >
-          ⚠️ {error}
-        </div>
-      )}
-
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[
-          { label: 'Total Pageviews', value: stats?.totalPageviews ?? 0 },
-          { label: 'Home Views', value: stats?.homeViews ?? 0 },
-          { label: 'Products Views', value: stats?.productsViews ?? 0 },
-        ].map(({ label, value }) => (
-          <div
-            key={label}
-            className="rounded-xl border p-6"
-            style={{
-              borderColor: 'var(--border)',
-              backgroundColor: 'var(--surface)',
-            }}
-          >
-            <StatCounter value={value} label={label} />
+    <div style={{ backgroundColor: dark.bg, color: dark.text, minHeight: '100vh' }}>
+      <div className="max-w-[1200px] mx-auto px-6 py-12">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <p className="font-sans text-xs uppercase tracking-[0.22em] mb-1" style={{ color: dark.sage }}>
+              Rafid Industries
+            </p>
+            <h1 className="font-sans text-2xl font-medium" style={s}>Admin</h1>
           </div>
-        ))}
-      </div>
+          {saveStatus && (
+            <span className="font-sans text-xs" style={{ color: dark.muted }}>{saveStatus}</span>
+          )}
+        </div>
 
-      {/* ClearAir usage */}
-      <div
-        className="rounded-xl border p-6"
-        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2
-            className="font-serif text-lg font-semibold"
-            style={{ color: 'var(--text)' }}
-          >
-            ClearAir Usage
-          </h2>
-          <span
-            className="flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium"
-            style={{ borderColor: 'var(--sage)', color: 'var(--sage)' }}
-          >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#7A9E82' }} />
-            Live
-          </span>
-        </div>
-        <div className="flex items-baseline gap-3">
-          <span
-            className="font-serif text-4xl"
-            style={{ color: 'var(--sage)', fontWeight: 300 }}
-          >
-            {clearairChecks.toLocaleString('en-US')}
-          </span>
-          <span className="text-sm" style={{ color: 'var(--muted)' }}>
-            airspace checks run
-          </span>
-        </div>
-        <p className="mt-2 text-xs" style={{ color: 'var(--muted)' }}>
-          KV key: <code className="font-mono">clearair_checks</code>
-        </p>
-      </div>
-
-      {/* Pageview table */}
-      <div
-        className="overflow-hidden rounded-xl border"
-        style={{
-          borderColor: 'var(--border)',
-          backgroundColor: 'var(--surface)',
-        }}
-      >
-        <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-          <h2
-            className="font-serif text-lg font-semibold"
-            style={{ color: 'var(--text)' }}
-          >
-            Page Views
-          </h2>
-        </div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr style={{ backgroundColor: 'var(--elevated)' }}>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                style={{ color: 'var(--muted)' }}
-              >
-                Page
-              </th>
-              <th
-                className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider"
-                style={{ color: 'var(--muted)' }}
-              >
-                Views
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={2}
-                  className="px-6 py-8 text-center text-sm"
-                  style={{ color: 'var(--muted)' }}
-                >
-                  No pageview data yet.
-                </td>
-              </tr>
-            ) : (
-              rows.map((row, i) => (
-                <tr
-                  key={row.page}
-                  className="admin-row border-t"
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sidebar / top tabs */}
+          <aside className="md:w-40 flex-shrink-0">
+            <nav className="flex md:flex-col gap-1">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="font-sans text-sm text-left px-3 py-2 transition-colors"
                   style={{
-                    animationDelay: `${i * 40}ms`,
-                    borderColor: 'var(--border)',
+                    color: activeTab === tab.id ? dark.text : dark.muted,
+                    backgroundColor: activeTab === tab.id ? dark.surface : 'transparent',
+                    borderLeft: activeTab === tab.id ? `2px solid ${dark.sage}` : '2px solid transparent',
                   }}
                 >
-                  <td className="px-6 py-3 font-mono" style={{ color: 'var(--text)' }}>
-                    {row.page}
-                  </td>
-                  <td
-                    className="px-6 py-3 text-right"
-                    style={{ color: 'var(--sage)' }}
-                  >
-                    {row.views.toLocaleString()}
-                  </td>
-                </tr>
-              ))
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+          </aside>
+
+          {/* Tab content */}
+          <div className="flex-1 min-w-0">
+            {activeTab === 'kv' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <StatCard label="Total Views" value={totalViews} color={dark.sage} />
+                  <StatCard label="ClearAir Checks" value={clearairChecks} color={dark.sage} />
+                  {Object.entries(initialPageViews).slice(0, 4).map(([page, count]) => (
+                    <StatCard key={page} label={page} value={count} color={dark.muted} />
+                  ))}
+                </div>
+              </div>
             )}
-          </tbody>
-        </table>
+
+            {activeTab === 'deployments' && (
+              <div>
+                {deploymentsError && (
+                  <p className="font-sans text-sm" style={{ color: '#F87171' }}>{deploymentsError}</p>
+                )}
+                {deployments === null && !deploymentsError && (
+                  <p className="font-sans text-sm" style={{ color: dark.muted }}>Loading…</p>
+                )}
+                {deployments && (deployments as DeploymentItem[]).map((d) => (
+                  <DeploymentRow key={(d as DeploymentItem).uid} d={d as DeploymentItem} />
+                ))}
+                {deployments?.length === 0 && (
+                  <p className="font-sans text-sm" style={{ color: dark.muted }}>No deployments found.</p>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'content' && (
+              <div>
+                <label className="font-sans text-xs uppercase tracking-[0.22em] block mb-2" style={{ color: dark.sage }}>
+                  Hero text
+                </label>
+                <textarea
+                  value={heroText}
+                  onChange={(e) => setHeroText(e.target.value)}
+                  onBlur={() => saveContent('hero_text', heroText)}
+                  rows={4}
+                  className="w-full font-sans text-sm p-3 resize-none focus:outline-none"
+                  style={{
+                    backgroundColor: dark.surface,
+                    border: `1px solid ${dark.border}`,
+                    color: dark.text,
+                  }}
+                  placeholder="Precision software. Built in public."
+                />
+                <p className="font-sans text-xs mt-1" style={{ color: dark.muted }}>
+                  Auto-saves on blur.
+                </p>
+              </div>
+            )}
+
+            {activeTab === 'notes' && (
+              <div>
+                <label className="font-sans text-xs uppercase tracking-[0.22em] block mb-2" style={{ color: dark.sage }}>
+                  Admin notes
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => handleNotesChange(e.target.value)}
+                  rows={12}
+                  className="w-full font-sans text-sm p-3 resize-none focus:outline-none"
+                  style={{
+                    backgroundColor: dark.surface,
+                    border: `1px solid ${dark.border}`,
+                    color: dark.text,
+                  }}
+                  placeholder="Internal notes…"
+                />
+                <p className="font-sans text-xs mt-1" style={{ color: dark.muted }}>
+                  Auto-saves 1s after you stop typing.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div
+      className="p-4 border"
+      style={{ borderColor: dark.border, backgroundColor: dark.surface }}
+    >
+      <p className="font-sans text-xs uppercase tracking-[0.12em] mb-1" style={{ color: dark.muted }}>
+        {label}
+      </p>
+      <p className="font-sans text-2xl font-medium tabular-nums" style={{ color }}>
+        {value.toLocaleString()}
+      </p>
+    </div>
+  )
+}
+
+interface DeploymentItem {
+  uid: string
+  name: string
+  url?: string
+  state?: string
+  created?: number
+  createdAt?: number
+}
+
+function DeploymentRow({ d }: { d: DeploymentItem }) {
+  const state = (d.state ?? '').toLowerCase()
+  const stateColor =
+    state === 'ready' ? '#7A9E82' :
+    state === 'error' ? '#F87171' :
+    dark.muted
+
+  const ts = d.createdAt ?? d.created
+  const date = ts ? new Date(ts).toLocaleDateString() : '—'
+
+  return (
+    <div
+      className="flex items-center justify-between py-3 border-b font-sans text-sm"
+      style={{ borderColor: dark.border, color: dark.text }}
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: stateColor }} />
+        <span className="truncate" style={{ color: dark.muted }}>{d.name ?? d.uid}</span>
+      </div>
+      <div className="flex items-center gap-4 flex-shrink-0">
+        <span className="text-xs" style={{ color: stateColor }}>{d.state ?? '—'}</span>
+        <span className="text-xs" style={{ color: dark.muted }}>{date}</span>
       </div>
     </div>
   )
