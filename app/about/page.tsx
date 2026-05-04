@@ -1,5 +1,3 @@
-import RevealOnScroll from '@/components/RevealOnScroll'
-
 export const metadata = {
   title: 'About — Rafid Industries',
   description: 'Precision software, built in public.',
@@ -8,7 +6,7 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <main className="max-w-[1200px] mx-auto px-6 py-16">
-      <RevealOnScroll>
+      <div>
         <h1 className="font-display font-light text-4xl md:text-5xl text-ink dark:text-dark-text mb-6">
           About
         </h1>
@@ -21,7 +19,7 @@ export default function AboutPage() {
             Everything is built in public, shipped fast, and kept simple.
           </p>
         </div>
-      </RevealOnScroll>
+      </div>
     </main>
   )
 }

@@ -14,9 +14,10 @@ const config: Config = {
         ink: '#1A1A18',
         sage: '#7A9E82',
         border: '#E0DED7',
-        'dark-bg': '#1A1410',
+        'dark-bg': '#22160F',
         'dark-surface': '#241C16',
         'dark-border': '#3D3028',
+        'ink-40': 'rgba(26,26,24,0.40)',
         'dark-text': '#F0EDE8',
       },
       borderRadius: {
@@ -33,7 +34,7 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-dm-sans)', 'sans-serif'],
         display: ['var(--font-cormorant)', 'Georgia', 'serif'],
-        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'Courier New', 'monospace'],
       },
     },
   },

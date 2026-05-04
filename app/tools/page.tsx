@@ -1,6 +1,5 @@
 import { getProducts, setProducts, DEFAULT_PRODUCTS } from '@/lib/kv'
 import ToolGrid from '@/components/ToolGrid'
-import RevealOnScroll from '@/components/RevealOnScroll'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,14 +18,14 @@ export default async function ToolsPage() {
 
   return (
     <main className="max-w-[1200px] mx-auto px-6 py-16">
-      <RevealOnScroll>
+      <div>
         <h1 className="font-display font-light text-4xl md:text-5xl text-ink dark:text-dark-text mb-3">
           Educational Tools
         </h1>
         <p className="font-sans text-base text-ink/60 dark:text-dark-text/60 mb-12">
           Deterministic tools. No AI dependencies. Built for precision.
         </p>
-      </RevealOnScroll>
+      </div>
 
       <ToolGrid products={products} />
     </main>
