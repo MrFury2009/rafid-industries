@@ -1,7 +1,6 @@
 import { getProducts, getHeroText, setProducts, DEFAULT_PRODUCTS } from '@/lib/kv'
 import Wordmark from '@/components/Wordmark'
 import ToolGrid from '@/components/ToolGrid'
-import RevealOnScroll from '@/components/RevealOnScroll'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -27,7 +26,7 @@ export default async function Home() {
           <Wordmark size="lg" animated />
         </div>
 
-        <RevealOnScroll>
+        <div>
           <h1
             className="font-display font-light italic text-ink dark:text-dark-text leading-tight mb-4"
             style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}
@@ -37,7 +36,7 @@ export default async function Home() {
           <p className="font-sans text-base text-ink/60 dark:text-dark-text/60">
             Tools, apps, and products from Rafid Industries.
           </p>
-        </RevealOnScroll>
+        </div>
       </section>
 
       <div className="max-w-[1200px] mx-auto px-6">

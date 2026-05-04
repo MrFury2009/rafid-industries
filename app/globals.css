@@ -2,9 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   html {
     color-scheme: light;
+    --font-mono: 'DM Mono', ui-monospace, 'Courier New', monospace;
+    --ink-72: rgba(26, 26, 24, 0.72);
+    --ink-48: rgba(26, 26, 24, 0.48);
+    --ink-40: rgba(26, 26, 24, 0.40);
+    --ink-16: rgba(26, 26, 24, 0.16);
+    --ink-08: rgba(26, 26, 24, 0.08);
+    --ink-04: rgba(26, 26, 24, 0.04);
+    --sage-16: rgba(122, 158, 130, 0.16);
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --t-micro: 120ms;
+    --t-std: 200ms;
+    --t-page: 320ms;
+    --warning: #B86B3A;
+    --error: #9A2A2A;
     @apply bg-bg text-ink;
   }
 
@@ -24,7 +94,7 @@
 
 /* Dark mode View Transitions — circular reveal from toggle button */
 ::view-transition-new(root) {
-  animation: ri-reveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: ri-reveal 320ms cubic-bezier(0.2, 0, 0, 1) forwards;
   clip-path: circle(0% at var(--toggle-x, 50%) var(--toggle-y, 50%));
 }
 
@@ -36,18 +106,6 @@
   to {
     clip-path: circle(150% at var(--toggle-x, 50%) var(--toggle-y, 50%));
   }
-}
-
-/* Scroll reveal driven by IntersectionObserver */
-.reveal {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 280ms ease, transform 280ms ease;
-}
-
-.reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Nav link sage underline — slides in from left */

@@ -1,13 +1,28 @@
 import type { Metadata } from 'next'
-import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
+import localFont from 'next/font/local'
+import { DM_Mono, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 import Nav from '@/components/Nav'
 import PageTransition from '@/components/PageTransition'
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500'],
+const dmSans = localFont({
+  src: [
+    { path: '../public/fonts/DMSans-Light.ttf', weight: '300', style: 'normal' },
+    { path: '../public/fonts/DMSans-Regular.ttf', weight: '400', style: 'normal' },
+    { path: '../public/fonts/DMSans-Italic.ttf', weight: '400', style: 'italic' },
+    { path: '../public/fonts/DMSans-Medium.ttf', weight: '500', style: 'normal' },
+    { path: '../public/fonts/DMSans-MediumItalic.ttf', weight: '500', style: 'italic' },
+    { path: '../public/fonts/DMSans-SemiBold.ttf', weight: '600', style: 'normal' },
+    { path: '../public/fonts/DMSans-Bold.ttf', weight: '700', style: 'normal' },
+  ],
   variable: '--font-dm-sans',
+  display: 'swap',
+})
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-mono',
   display: 'swap',
 })
 
@@ -43,7 +58,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${dmSans.variable} ${cormorant.variable} font-sans antialiased bg-bg dark:bg-dark-bg text-ink dark:text-dark-text`}>
+      <body className={`${dmSans.variable} ${dmMono.variable} ${cormorant.variable} font-sans antialiased bg-bg dark:bg-dark-bg text-ink dark:text-dark-text`}>
         <Nav />
         <PageTransition>{children}</PageTransition>
       </body>

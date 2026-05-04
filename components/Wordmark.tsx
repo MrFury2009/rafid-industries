@@ -14,7 +14,8 @@ function WordmarkText({ size = 'sm' }: { size?: string }) {
     <span
       className={`font-sans font-medium uppercase tracking-[0.22em] ${sizeClasses[size] ?? sizeClasses.sm}`}
     >
-      RAFID <span className="text-sage">I</span>NDUSTRIES
+      <span className="text-ink dark:text-dark-text">RAFID</span>{' '}
+      <span className="text-sage">INDUSTRIES</span>
     </span>
   )
 }
