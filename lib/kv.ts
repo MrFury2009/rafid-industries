@@ -1,60 +1,78 @@
-/**
- * KV helpers — server-side only (no NEXT_PUBLIC_ prefix on any env var).
- * All functions have try/catch with graceful fallback (null / empty array).
- * Never import this file from 'use client' components.
- */
-
 import { Redis } from '@upstash/redis'
 
-// Singleton — reuse across requests in the same server instance
 let _kv: Redis | null = null
 
 function getKv(): Redis {
   if (!_kv) {
     _kv = new Redis({
-      url: process.env.KV_REST_API_URL!,
-      token: process.env.KV_REST_API_TOKEN!,
+      url: process.env.KV_REST_API_URL ?? '',
+      token: process.env.KV_REST_API_TOKEN ?? '',
     })
   }
   return _kv
 }
 
-/* ── Pageview tracking ───────────────────────────────────────────────── */
-export async function getPageviews(page: string): Promise<number | null> {
-  try {
-    const kv = getKv()
-    const val = await kv.get<number>(`pageviews:${page}`)
-    return val ?? 0
-  } catch {
-    // KV not configured or network error — return null, page still renders
-    return null
-  }
-}
-
-export async function incrementPageview(page: string): Promise<void> {
-  try {
-    const kv = getKv()
-    await kv.incr(`pageviews:${page}`)
-  } catch {
-    // Silently fail — pageview tracking is non-critical
-  }
-}
-
-/* ── Products ────────────────────────────────────────────────────────── */
 export interface Product {
   slug: string
   name: string
-  tagline?: string
   description: string
-  status?: string        // e.g. "Live" | "Beta" | "Coming Soon"
-  url?: string           // external launch URL
-  price?: number
-  available?: boolean
+  status: 'live' | 'soon'
+  url?: string
   features?: string[]
   createdAt?: string
 }
 
-/** Read all products. Stored as a JSON array under key "products". */
+export const DEFAULT_PRODUCTS: Product[] = [
+  {
+    name: 'ClearAir',
+    slug: 'clearair',
+    description: 'Drone airspace checker. Instant. No account required.',
+    status: 'live',
+    url: 'https://clearair.vercel.app',
+    features: [
+      'Checks restricted, prohibited, and controlled airspace instantly',
+      'Uses live FAA data — no stale static datasets',
+      'Works without an account or API key',
+      'Mobile-friendly map with tap-to-check',
+    ],
+  },
+  {
+    name: 'RI Relay',
+    slug: 'ri-relay',
+    description: 'Offload Minecraft chunk generation to your iPad.',
+    status: 'soon',
+    url: '',
+  },
+  {
+    name: 'APA Generator',
+    slug: 'apa',
+    description: 'Deterministic APA7 citation formatter. Zero AI.',
+    status: 'live',
+    url: '',
+  },
+  {
+    name: 'Coming Soon',
+    slug: 'tbd-1',
+    description: 'Another tool in development.',
+    status: 'soon',
+    url: '',
+  },
+  {
+    name: 'Coming Soon',
+    slug: 'tbd-2',
+    description: 'Another tool in development.',
+    status: 'soon',
+    url: '',
+  },
+  {
+    name: 'Coming Soon',
+    slug: 'tbd-3',
+    description: 'Another tool in development.',
+    status: 'soon',
+    url: '',
+  },
+]
+
 export async function getProducts(): Promise<Product[]> {
   try {
     const kv = getKv()
@@ -65,7 +83,6 @@ export async function getProducts(): Promise<Product[]> {
   }
 }
 
-/** Overwrite the full products array. */
 export async function setProducts(products: Product[]): Promise<boolean> {
   try {
     const kv = getKv()
@@ -76,34 +93,51 @@ export async function setProducts(products: Product[]): Promise<boolean> {
   }
 }
 
-/** Convenience: get a single product by slug from the products array. */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const products = await getProducts()
   return products.find((p) => p.slug === slug) ?? null
 }
 
-/** Legacy hset-based getter kept for backward compat. */
-export async function getProduct(slug: string): Promise<Product | null> {
+export async function getHeroText(): Promise<string> {
   try {
     const kv = getKv()
-    const product = await kv.hgetall(`product:${slug}`)
-    return (product as unknown as Product) ?? null
+    const val = await kv.get<string>('hero_text')
+    return val ?? ''
   } catch {
-    return null
+    return ''
   }
 }
 
-export async function setProduct(slug: string, data: Product): Promise<boolean> {
+export async function setHeroText(text: string): Promise<boolean> {
   try {
     const kv = getKv()
-    await kv.hset(`product:${slug}`, { ...data } as Record<string, unknown>)
+    await kv.set('hero_text', text)
     return true
   } catch {
     return false
   }
 }
 
-/* ── ClearAir usage counter ──────────────────────────────────────────── */
+export async function getAdminNotes(): Promise<string> {
+  try {
+    const kv = getKv()
+    const val = await kv.get<string>('admin_notes')
+    return val ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export async function setAdminNotes(text: string): Promise<boolean> {
+  try {
+    const kv = getKv()
+    await kv.set('admin_notes', text)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export async function getClearAirChecks(): Promise<number> {
   try {
     const kv = getKv()
@@ -114,27 +148,34 @@ export async function getClearAirChecks(): Promise<number> {
   }
 }
 
-/* ── Admin stats ─────────────────────────────────────────────────────── */
-export interface AdminStats {
-  totalPageviews: number
-  homeViews: number
-  productsViews: number
-}
-
-export async function getAdminStats(): Promise<AdminStats | null> {
+export async function incrementClearAirChecks(): Promise<number> {
   try {
     const kv = getKv()
-    const [total, home, products] = await Promise.all([
-      kv.get<number>('pageviews:total'),
-      kv.get<number>('pageviews:home'),
-      kv.get<number>('pageviews:products'),
-    ])
-    return {
-      totalPageviews: total ?? 0,
-      homeViews: home ?? 0,
-      productsViews: products ?? 0,
-    }
+    const newVal = await kv.incr('clearair_checks')
+    return newVal
   } catch {
-    return null
+    return 0
+  }
+}
+
+export async function getPageViews(page: string): Promise<number> {
+  try {
+    const kv = getKv()
+    const val = await kv.get<number>(`views:${page}`)
+    return val ?? 0
+  } catch {
+    return 0
+  }
+}
+
+export async function incrementPageViews(page: string): Promise<void> {
+  try {
+    const kv = getKv()
+    await Promise.all([
+      kv.incr(`views:${page}`),
+      kv.incr('views:total'),
+    ])
+  } catch {
+    // non-critical
   }
 }
